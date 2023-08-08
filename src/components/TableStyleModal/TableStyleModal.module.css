@@ -1,0 +1,39 @@
+.container {
+  padding: 10px;
+  width: 100%;
+}
+
+.colorpicker > input {
+  width: 120px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 17px;
+  color: #000;
+}
+
+.InputField {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+}
+
+.InputField > span:first-child {
+  font-weight: 600;
+}
+
+.InputFieldGroup {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.InputText {
+  width: 150px;
+}
+
+.select {
+  padding: 8px;
+}

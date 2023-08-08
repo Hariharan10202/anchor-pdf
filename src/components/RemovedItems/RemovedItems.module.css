@@ -1,0 +1,13 @@
+.removedItems {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 26px;
+  padding: 20px;
+  cursor: pointer;
+  max-height: 300px;
+}
+
+.removedItems:hover {
+  background-color: #9f94cf2a;
+}

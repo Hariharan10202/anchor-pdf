@@ -1,0 +1,18 @@
+.previewBtn {
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: flex-end;
+  padding: 10px;
+  gap: 20px;
+}
+
+.previewBtn > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

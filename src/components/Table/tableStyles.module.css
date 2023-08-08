@@ -1,0 +1,22 @@
+.headerContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.headerContainer > div {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+}
+
+.headerContainer > div > span:first-child {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.editButton > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

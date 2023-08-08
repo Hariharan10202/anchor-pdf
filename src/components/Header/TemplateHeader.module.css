@@ -1,0 +1,68 @@
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.logo {
+  width: 100px;
+  height: 60px;
+  background-color: aqua;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo > img {
+  object-fit: cover;
+  width: 20%;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+  align-items: flex-start;
+}
+
+.companyDetails {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px;
+}
+
+.companyInfo > div,
+.companyDetails > div {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+}
+
+.companyInfo {
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.headerContent > div > span:first-child,
+.companyInfo > div > span:first-child,
+.companyDetails > div > span:first-child {
+  font-weight: 500;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.eachDiv {
+  background-color: transparent;
+}
+
+/* .eachDiv:hover {
+  background-color: rgba(0, 0, 0, 0.199);
+  border-radius: 4px;
+  padding: 10px;
+} */
+
+.eachDiv > span {
+  pointer-events: none;
+}

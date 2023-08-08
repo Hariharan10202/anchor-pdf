@@ -1,0 +1,17 @@
+.table-footer {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  justify-content: flex-end;
+}
+
+.table-amount-in-preferred-currency {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.p-rowgroup-header {
+  background-color: rgba(175, 146, 146, 0.292) !important;
+  color: #333 !important;
+}
