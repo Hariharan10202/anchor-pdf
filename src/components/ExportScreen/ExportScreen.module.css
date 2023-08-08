@@ -16,3 +16,33 @@
   align-items: center;
   gap: 10px;
 }
+
+.container {
+  padding: 20px;
+}
+
+.actionBody {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modalContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.inputContainer {
+  display: flex;
+  column-gap: 20px;
+  row-gap: 30px;
+  flex-wrap: wrap;
+}
+
+.newUserCta {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}

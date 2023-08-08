@@ -27,3 +27,10 @@
   display: flex;
   justify-content: flex-start;
 }
+
+.textTruncate {
+  width: 100px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

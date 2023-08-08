@@ -9,9 +9,6 @@ import { FiEdit2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import styles from "./datatable.module.scss";
 import { Toolbar } from "primereact/toolbar";
-import Modal from "../Modal/Modal";
-import { InputText } from "primereact/inputtext";
-import { Toast } from "primereact/toast";
 import { Link } from "react-router-dom";
 
 import {
@@ -21,6 +18,7 @@ import {
   collection,
   getDocs,
   onSnapshot,
+  query,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -30,7 +28,7 @@ const Datatable = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const [users, setUsers] = useState(userRows);
+  const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [openUserModal, setOpenUserModal] = useState(false);
   const [userData, setUserData] = useState({
@@ -56,16 +54,17 @@ const Datatable = () => {
 
   useEffect(() => {
     const fetchUsers = () => {
-      const unsubscribe = onSnapshot(
-        collection(db, "customers"),
-        (snapshot) => {
-          snapshot.forEach((element) => {
-            console.log(element);
-            // console.log(element._document.data.value.mapValue.fields);
+      setLoading(true);
+      const unsub = onSnapshot(
+        collection(db, "customer_pdf_templates"),
+        (snapShot) => {
+          console.log(snapShot.docs);
+          const lists = [];
+          snapShot.docs.forEach((doc) => {
+            lists.push(doc.data());
           });
-        },
-        (error) => {
-          console.log(error);
+          setUsers(lists);
+          setLoading(false);
         }
       );
     };
@@ -87,12 +86,6 @@ const Datatable = () => {
         </Button>
       </div>
     );
-  };
-
-  const inputHandler = (e) => {
-    const { id, value } = e.target;
-    const createdOn = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
-    setUserData({ ...userData, [id]: value, createdOn: createdOn });
   };
 
   const submitHandler = async () => {
@@ -133,6 +126,10 @@ const Datatable = () => {
     );
   };
 
+  const templateIdBody = (rowData) => {
+    return <span className={styles.textTruncate}>{rowData.templateId}</span>;
+  };
+
   return (
     <div className={styles.container}>
       <Toolbar className="mb-4" left={leftToolbarTemplate}></Toolbar>
@@ -143,6 +140,7 @@ const Datatable = () => {
         filterDisplay="row"
         dataKey="id"
         paginator
+        loading={loading}
         rows={10}
         tableStyle={{ minWidth: "75rem" }}
       >
@@ -170,6 +168,13 @@ const Datatable = () => {
           filterElement={roleRowFilterTemplate}
         />
         <Column
+          header="Template Id"
+          body={templateIdBody}
+          filterField="templateId"
+          filter
+          filterPlaceholder="Search"
+        />
+        <Column
           field="createdOn"
           header="Created On"
           filter
@@ -177,56 +182,6 @@ const Datatable = () => {
         />
         <Column header="Actions" body={actionBodyTemplate} />
       </DataTable>
-      <Modal
-        header={"Add New user"}
-        visible={openUserModal}
-        setVisible={setOpenUserModal}
-      >
-        <div className={styles.modalContent}>
-          <div className={styles.inputContainer}>
-            <div className={styles.inputField}>
-              <span className="p-float-label">
-                <InputText
-                  id="username"
-                  value={userData.username}
-                  onChange={inputHandler}
-                />
-                <label htmlFor="username">Username</label>
-              </span>
-            </div>
-            <div className={styles.inputField}>
-              <span className="p-float-label">
-                <InputText
-                  id="email"
-                  value={userData.email}
-                  onChange={inputHandler}
-                />
-                <label htmlFor="email">Email</label>
-              </span>
-            </div>
-            <div className={styles.inputField}>
-              <Dropdown
-                value={userData.role}
-                options={roles}
-                id="role"
-                onChange={inputHandler}
-                placeholder="Select One"
-                className="p-column-filter"
-                showClear
-                style={{ minWidth: "12rem" }}
-              />
-            </div>
-          </div>
-          <div className={styles.newUserCta}>
-            <Button
-              loading={loading}
-              label={loading ? "Adding..." : "Add"}
-              onClick={submitHandler}
-            />
-          </div>
-        </div>
-      </Modal>
-      <Toast style={{ zIndex: 999 }} ref={toast} />
     </div>
   );
 };

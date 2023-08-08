@@ -1,25 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Template from "../Template/Template";
 
 import { Button } from "primereact/button";
 
 import styles from "./ExportScreen.module.css";
 
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { db, storage } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import { getDoc } from "firebase/firestore";
 
 import { VscPreview } from "react-icons/vsc";
 import { LuEdit2 } from "react-icons/lu";
 import { AiTwotoneSave } from "react-icons/ai";
-import { logDOM } from "@testing-library/react";
-// import { convertComponentToJson } from "convert-react-to-json";
+import Modal from "../Modal/Modal";
+import { InputText } from "primereact/inputtext";
+import { Toast } from "primereact/toast";
+import { Dropdown } from "primereact/dropdown";
+import { v4 as uuidv4 } from "uuid";
 
 const ExportScreen = () => {
   const user = localStorage.getItem("user");
+  const [roles] = useState(["Admin", "User"]);
+
+  const [loading, setLoading] = useState(false);
+
+  const toast = useRef(null);
 
   const [isTemplateEditable, setIsTemplateEditable] = useState(true);
   const [preview, setPreview] = useState(false);
+
+  const [openUserModal, setOpenUserModal] = useState(false);
 
   const [companyDetails, setCompanyDetails] = useState([]);
   const [quotationDetails, setQuotationDetails] = useState([]);
@@ -27,6 +37,16 @@ const ExportScreen = () => {
 
   const [selectedHeaderPoints, setSelectedHeaderPoints] = useState(null);
   const [selectedFooterPoints, setSelectedFooterPoints] = useState([]);
+
+  const [userData, setUserData] = useState({
+    id: "",
+    username: "",
+    email: "",
+    role: "",
+    createdOn: "",
+    templateConfiguration: "",
+    templateId: "",
+  });
 
   const [headerStyles, setHeaderStyles] = useState({
     backgroundColor: "#fff",
@@ -172,10 +192,15 @@ const ExportScreen = () => {
     },
   ]);
 
-  const saveTemplateHandler = async () => {
-    const id = String(new Date().getMilliseconds());
+  const inputHandler = (e) => {
+    const { id, value } = e.target;
+    const createdOn = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
+    setUserData({ ...userData, [id]: value, createdOn: createdOn });
+  };
 
+  const saveTemplateHandler = () => {
     const templateConfigs = {};
+    const id = String(new Date().getTime());
 
     templateConfigs.headerPoints = selectedHeaderPoints;
     templateConfigs.headerStyles = headerStyles;
@@ -192,11 +217,51 @@ const ExportScreen = () => {
     templateConfigs.linerContents = linerContents;
     templateConfigs.visibleRows = visibleRows;
     templateConfigs.visibleColumns = visibleColumns;
+    const uuid = uuidv4();
 
-    await setDoc(doc(db, "pdftemplates", user.email + id), templateConfigs);
+    setUserData({
+      ...userData,
+      configuration: templateConfigs,
+      id: id,
+      templateId: uuid,
+    });
 
-    setIsTemplateEditable(false);
-    setPreview(true);
+    setOpenUserModal(true);
+  };
+
+  const submitHandler = async () => {
+    const id = String(new Date().getTime());
+
+    if (userData.email && userData.role && userData.username) {
+      setLoading(true);
+      const docRef = doc(db, "customer_pdf_templates", id);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.data()) {
+        await setDoc(
+          doc(db, "customer_pdf_templates", userData.email),
+          userData
+        );
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: "User Added Successfully",
+        });
+        setLoading(false);
+        setOpenUserModal(false);
+        setUserData({
+          username: "",
+          email: "",
+          role: "",
+        });
+      } else {
+        toast.current.show({
+          severity: "warn",
+          summary: "Warning",
+          detail: "User Already Exists",
+        });
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -261,6 +326,56 @@ const ExportScreen = () => {
         <Button label="Save Template" onClick={saveTemplateHandler}>
           <AiTwotoneSave />
         </Button>
+        <Modal
+          header={"Add New user"}
+          visible={openUserModal}
+          setVisible={setOpenUserModal}
+        >
+          <div className={styles.modalContent}>
+            <div className={styles.inputContainer}>
+              <div className={styles.inputField}>
+                <span className="p-float-label">
+                  <InputText
+                    id="username"
+                    value={userData.username}
+                    onChange={inputHandler}
+                  />
+                  <label htmlFor="username">Username</label>
+                </span>
+              </div>
+              <div className={styles.inputField}>
+                <span className="p-float-label">
+                  <InputText
+                    id="email"
+                    value={userData.email}
+                    onChange={inputHandler}
+                  />
+                  <label htmlFor="email">Email</label>
+                </span>
+              </div>
+              <div className={styles.inputField}>
+                <Dropdown
+                  value={userData.role}
+                  options={roles}
+                  id="role"
+                  onChange={inputHandler}
+                  placeholder="Select One"
+                  className="p-column-filter"
+                  showClear
+                  style={{ minWidth: "12rem" }}
+                />
+              </div>
+            </div>
+            <div className={styles.newUserCta}>
+              <Button
+                loading={loading}
+                label={loading ? "Adding..." : "Add"}
+                onClick={submitHandler}
+              />
+            </div>
+          </div>
+        </Modal>
+        <Toast style={{ zIndex: 999 }} ref={toast} />
       </div>
     </div>
   );
