@@ -17,16 +17,25 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { Dropdown } from "primereact/dropdown";
 import { v4 as uuidv4 } from "uuid";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProtocol } from "../../Redux/userSlice";
+import { HeaderPoints } from "../../headerDataPoint";
 
 const ExportScreen = () => {
-  const user = localStorage.getItem("user");
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const [roles] = useState(["Admin", "User"]);
+
+  const location = useLocation();
 
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   const toast = useRef(null);
 
-  const [isTemplateEditable, setIsTemplateEditable] = useState(true);
+  const [isTemplateEditable, setIsTemplateEditable] = useState(false);
   const [preview, setPreview] = useState(false);
 
   const [openUserModal, setOpenUserModal] = useState(false);
@@ -35,13 +44,33 @@ const ExportScreen = () => {
   const [quotationDetails, setQuotationDetails] = useState([]);
   const [linerDetails, setLinerDetails] = useState([]);
 
-  const [selectedHeaderPoints, setSelectedHeaderPoints] = useState(null);
+  const [selectedHeaderPoints, setSelectedHeaderPoints] =
+    useState(HeaderPoints);
+
   const [selectedFooterPoints, setSelectedFooterPoints] = useState([]);
+
+  const params = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (location.pathname === `/render-template/${params.templateId}`)
+      dispatch(updateProtocol(true));
+    else {
+      console.log("route");
+      dispatch(updateProtocol(false));
+    }
+
+    const userFetch = async () => {
+      const docRef = doc(db, "customer_pdf_templates", user.email);
+      const docSnap = await getDoc(docRef);
+    };
+    userFetch();
+  }, [location]);
 
   const [userData, setUserData] = useState({
     id: "",
     username: "",
-    email: "",
+    email: user.email,
     role: "",
     createdOn: "",
     templateConfiguration: "",
@@ -232,13 +261,13 @@ const ExportScreen = () => {
   const submitHandler = async () => {
     const id = String(new Date().getTime());
 
-    if (userData.email && userData.role && userData.username) {
+    if (user.email && userData.role && userData.username) {
       setLoading(true);
-      const docRef = doc(db, "customer_pdf_templates", id);
+      const docRef = doc(db, "customer_pdf_templates", userData.username);
       const docSnap = await getDoc(docRef);
       if (!docSnap.data()) {
         await setDoc(
-          doc(db, "customer_pdf_templates", userData.email),
+          doc(db, "customer_pdf_templates", userData.username),
           userData
         );
         toast.current.show({
@@ -253,6 +282,7 @@ const ExportScreen = () => {
           email: "",
           role: "",
         });
+        navigate("/users");
       } else {
         toast.current.show({
           severity: "warn",
@@ -264,119 +294,127 @@ const ExportScreen = () => {
     }
   };
 
+  const isLoading = useSelector((state) => state.user.loading);
+  const protocol = useSelector((state) => state.user.protocol);
+
   return (
     <div>
-      <div className="PDFtemplate">
-        <Template
-          isTemplateEditable={isTemplateEditable}
-          setIsTemplateEditable={setIsTemplateEditable}
-          preview={preview}
-          setPreview={setPreview}
-          companyDetails={companyDetails}
-          setCompanyDetails={setCompanyDetails}
-          quotationDetails={quotationDetails}
-          setLinerDetails={setLinerDetails}
-          linerDetails={linerDetails}
-          setQuotationDetails={setQuotationDetails}
-          selectedHeaderPoints={selectedHeaderPoints}
-          setSelectedHeaderPoints={setSelectedHeaderPoints}
-          selectedFooterPoints={selectedFooterPoints}
-          setSelectedFooterPoints={setSelectedFooterPoints}
-          companyStylesProps={companyStylesProps}
-          setCompanyStylesProps={setCompanyStylesProps}
-          linerStylesProps={linerStylesProps}
-          setLinerStylesProps={setLinerStylesProps}
-          quotationStylesProps={quotationStylesProps}
-          setQuotationStylesProps={setQuotationStylesProps}
-          visibleRows={visibleRows}
-          visibleColumns={visibleColumns}
-          setVisibleRows={setVisibleRows}
-          setVisibleColumns={setVisibleColumns}
-          contents={contents}
-          linerContents={linerContents}
-          quotationContents={quotationContents}
-          setContents={setContents}
-          setLinerContents={setLinerContents}
-          setQuotationContents={setQuotationContents}
-          footerstyleProps={footerstyleProps}
-          setFooterStyleProps={setFooterStyleProps}
-          headerStyles={headerStyles}
-          setHeaderStyles={setHeaderStyles}
-        />
-      </div>
-      <div className={styles.previewBtn}>
-        <Button
-          label="Edit"
-          onClick={() => {
-            setIsTemplateEditable(true);
-            setPreview(true);
-          }}
-        >
-          <LuEdit2 />
-        </Button>
-        <Button
-          label="Set Preview"
-          onClick={() => {
-            setIsTemplateEditable(false);
-            setPreview(true);
-          }}
-        >
-          <VscPreview />
-        </Button>
-        <Button label="Save Template" onClick={saveTemplateHandler}>
-          <AiTwotoneSave />
-        </Button>
-        <Modal
-          header={"Add New user"}
-          visible={openUserModal}
-          setVisible={setOpenUserModal}
-        >
-          <div className={styles.modalContent}>
-            <div className={styles.inputContainer}>
-              <div className={styles.inputField}>
-                <span className="p-float-label">
-                  <InputText
-                    id="username"
-                    value={userData.username}
+      {!isLoading && (
+        <div className="PDFtemplate">
+          <Template
+            isTemplateEditable={isTemplateEditable}
+            setIsTemplateEditable={setIsTemplateEditable}
+            preview={preview}
+            setPreview={setPreview}
+            companyDetails={companyDetails}
+            setCompanyDetails={setCompanyDetails}
+            quotationDetails={quotationDetails}
+            setLinerDetails={setLinerDetails}
+            linerDetails={linerDetails}
+            setQuotationDetails={setQuotationDetails}
+            selectedHeaderPoints={selectedHeaderPoints}
+            setSelectedHeaderPoints={setSelectedHeaderPoints}
+            selectedFooterPoints={selectedFooterPoints}
+            setSelectedFooterPoints={setSelectedFooterPoints}
+            companyStylesProps={companyStylesProps}
+            setCompanyStylesProps={setCompanyStylesProps}
+            linerStylesProps={linerStylesProps}
+            setLinerStylesProps={setLinerStylesProps}
+            quotationStylesProps={quotationStylesProps}
+            setQuotationStylesProps={setQuotationStylesProps}
+            visibleRows={visibleRows}
+            visibleColumns={visibleColumns}
+            setVisibleRows={setVisibleRows}
+            setVisibleColumns={setVisibleColumns}
+            contents={contents}
+            linerContents={linerContents}
+            quotationContents={quotationContents}
+            setContents={setContents}
+            setLinerContents={setLinerContents}
+            setQuotationContents={setQuotationContents}
+            footerstyleProps={footerstyleProps}
+            setFooterStyleProps={setFooterStyleProps}
+            headerStyles={headerStyles}
+            setHeaderStyles={setHeaderStyles}
+          />
+        </div>
+      )}
+      {!protocol && (
+        <div className={styles.previewBtn}>
+          <Button
+            label="Edit"
+            onClick={() => {
+              setIsTemplateEditable(true);
+              setPreview(true);
+            }}
+          >
+            <LuEdit2 />
+          </Button>
+          <Button
+            label="Set Preview"
+            onClick={() => {
+              setIsTemplateEditable(false);
+              setPreview(true);
+            }}
+          >
+            <VscPreview />
+          </Button>
+          <Button label="Save Template" onClick={saveTemplateHandler}>
+            <AiTwotoneSave />
+          </Button>
+          <Modal
+            header={"Add New user"}
+            visible={openUserModal}
+            setVisible={setOpenUserModal}
+          >
+            <div className={styles.modalContent}>
+              <div className={styles.inputContainer}>
+                <div className={styles.inputField}>
+                  <span className="p-float-label">
+                    <InputText
+                      id="username"
+                      value={userData.username}
+                      onChange={inputHandler}
+                    />
+                    <label htmlFor="username">Username</label>
+                  </span>
+                </div>
+                <div className={styles.inputField}>
+                  <span className="p-float-label">
+                    <InputText
+                      id="email"
+                      value={user.email}
+                      disabled
+                      onChange={inputHandler}
+                    />
+                    <label htmlFor="email">Email</label>
+                  </span>
+                </div>
+                <div className={styles.inputField}>
+                  <Dropdown
+                    value={userData.role}
+                    options={roles}
+                    id="role"
                     onChange={inputHandler}
+                    placeholder="Select One"
+                    className="p-column-filter"
+                    showClear
+                    style={{ minWidth: "12rem" }}
                   />
-                  <label htmlFor="username">Username</label>
-                </span>
+                </div>
               </div>
-              <div className={styles.inputField}>
-                <span className="p-float-label">
-                  <InputText
-                    id="email"
-                    value={userData.email}
-                    onChange={inputHandler}
-                  />
-                  <label htmlFor="email">Email</label>
-                </span>
-              </div>
-              <div className={styles.inputField}>
-                <Dropdown
-                  value={userData.role}
-                  options={roles}
-                  id="role"
-                  onChange={inputHandler}
-                  placeholder="Select One"
-                  className="p-column-filter"
-                  showClear
-                  style={{ minWidth: "12rem" }}
+              <div className={styles.newUserCta}>
+                <Button
+                  loading={loading}
+                  label={loading ? "Adding..." : "Add"}
+                  onClick={submitHandler}
                 />
               </div>
             </div>
-            <div className={styles.newUserCta}>
-              <Button
-                loading={loading}
-                label={loading ? "Adding..." : "Add"}
-                onClick={submitHandler}
-              />
-            </div>
-          </div>
-        </Modal>
-        <Toast style={{ zIndex: 999 }} ref={toast} />
-      </div>
+          </Modal>
+          <Toast style={{ zIndex: 999 }} ref={toast} />
+        </div>
+      )}
     </div>
   );
 };

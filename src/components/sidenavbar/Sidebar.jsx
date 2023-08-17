@@ -5,6 +5,7 @@ import StoreIcon from "@mui/icons-material/Store";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
+import { SiRender } from "react-icons/si";
 
 const SideNavbar = () => {
   return (
@@ -35,6 +36,12 @@ const SideNavbar = () => {
               <span>Templates</span>
             </li>
           </Link>
+          {/* <Link to="/render-template" style={{ textDecoration: "none" }}>
+            <li>
+              <SiRender className={styles.icon} />
+              <span>Render template</span>
+            </li>
+          </Link> */}
           <p className={styles.title}>USER</p>
           <li>
             <AccountCircleOutlinedIcon className={styles.icon} />

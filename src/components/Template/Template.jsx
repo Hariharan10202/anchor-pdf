@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Template.module.css";
 import Sidebar from "../Sidebar/Sidebar";
 import Screen from "../Screen/Screen";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const Template = ({
   isTemplateEditable,
@@ -45,9 +47,32 @@ const Template = ({
   const [removedQuotationDetails, setRemovedQuotationDetails] = useState([]);
   const [removedLinerDetails, setRemovedLinerDetails] = useState([]);
 
+  const userConfigurations = useSelector((state) => state.user.data);
+  const protocol = useSelector((state) => state.user.protocol);
+
+  const [config, setConfig] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const params = useParams();
+
+  useEffect(() => {
+    if (params.templateId) {
+      setLoading(true);
+      const userConfig = userConfigurations.find(
+        (item) => item.username === params.templateId
+      );
+      setConfig(userConfig.configuration);
+      setLoading(false);
+    } else {
+      setConfig([]);
+    }
+  }, [userConfigurations]);
+
+  console.log(config);
+
   return (
     <div className={styles.container}>
-      {!preview && (
+      {!preview && !protocol && (
         <Sidebar
           isTemplateEditable={isTemplateEditable}
           setIsTemplateEditable={setIsTemplateEditable}
@@ -71,48 +96,82 @@ const Template = ({
           setSelectedFooterPoints={setSelectedFooterPoints}
         />
       )}
-      <Screen
-        isTemplateEditable={isTemplateEditable}
-        setIsTemplateEditable={setIsTemplateEditable}
-        selectedHeaderPoints={selectedHeaderPoints}
-        setSelectedHeaderPoints={setSelectedHeaderPoints}
-        removedCompanyDetails={removedCompanyDetails}
-        removedLinerDetails={removedLinerDetails}
-        removedQuotationDetails={removedQuotationDetails}
-        setRemovedCompanyDetails={setRemovedCompanyDetails}
-        setRemovedQuotationDetails={setRemovedQuotationDetails}
-        setRemovedLinerDetails={setRemovedLinerDetails}
-        companyDetails={companyDetails}
-        quotationDetails={quotationDetails}
-        linerDetails={linerDetails}
-        setQuotationDetails={setQuotationDetails}
-        setCompanyDetails={setCompanyDetails}
-        setLinerDetails={setLinerDetails}
-        selectedFooterPoints={selectedFooterPoints}
-        setSelectedFooterPoints={setSelectedFooterPoints}
-        setPreview={setPreview}
-        preview={preview}
-        companyStylesProps={companyStylesProps}
-        setCompanyStylesProps={setCompanyStylesProps}
-        linerStylesProps={linerStylesProps}
-        setLinerStylesProps={setLinerStylesProps}
-        quotationStylesProps={quotationStylesProps}
-        setQuotationStylesProps={setQuotationStylesProps}
-        visibleRows={visibleRows}
-        visibleColumns={visibleColumns}
-        setVisibleRows={setVisibleRows}
-        setVisibleColumns={setVisibleColumns}
-        contents={contents}
-        linerContents={linerContents}
-        quotationContents={quotationContents}
-        setContents={setContents}
-        setLinerContents={setLinerContents}
-        setQuotationContents={setQuotationContents}
-        footerstyleProps={footerstyleProps}
-        setFooterStyleProps={setFooterStyleProps}
-        headerStyles={headerStyles}
-        setHeaderStyles={setHeaderStyles}
-      />
+      {!loading && (
+        <Screen
+          isTemplateEditable={isTemplateEditable}
+          setIsTemplateEditable={setIsTemplateEditable}
+          selectedHeaderPoints={selectedHeaderPoints}
+          setSelectedHeaderPoints={setSelectedHeaderPoints}
+          removedCompanyDetails={removedCompanyDetails}
+          removedLinerDetails={removedLinerDetails}
+          removedQuotationDetails={removedQuotationDetails}
+          setRemovedCompanyDetails={setRemovedCompanyDetails}
+          setRemovedQuotationDetails={setRemovedQuotationDetails}
+          setRemovedLinerDetails={setRemovedLinerDetails}
+          companyDetails={
+            config?.companyDetails?.length
+              ? config.companyDetails
+              : companyDetails
+          }
+          quotationDetails={
+            config?.quotationDetails?.length
+              ? config.quotationDetails
+              : quotationDetails
+          }
+          linerDetails={
+            config?.linerDetails?.length ? config.linerDetails : linerDetails
+          }
+          setQuotationDetails={setQuotationDetails}
+          setCompanyDetails={setCompanyDetails}
+          setLinerDetails={setLinerDetails}
+          selectedFooterPoints={selectedFooterPoints}
+          setSelectedFooterPoints={setSelectedFooterPoints}
+          setPreview={setPreview}
+          preview={preview}
+          companyStylesProps={
+            config?.companyStyles ? config.companyStyles : companyStylesProps
+          }
+          setCompanyStylesProps={setCompanyStylesProps}
+          linerStylesProps={
+            config?.linerStyles ? config.linerStyles : linerStylesProps
+          }
+          setLinerStylesProps={setLinerStylesProps}
+          quotationStylesProps={quotationStylesProps}
+          setQuotationStylesProps={setQuotationStylesProps}
+          visibleRows={
+            config?.visibleRows?.length ? config.visibleRows : visibleRows
+          }
+          visibleColumns={
+            config?.visibleColumns?.length
+              ? config.visibleColumns
+              : visibleColumns
+          }
+          setVisibleRows={setVisibleRows}
+          setVisibleColumns={setVisibleColumns}
+          contents={config?.contents?.length ? config.contents : contents}
+          linerContents={
+            config?.linerContents?.length ? config.linerContents : linerContents
+          }
+          quotationContents={
+            config?.quotationContents?.length
+              ? config.quotationContents
+              : quotationContents
+          }
+          setContents={setContents}
+          setLinerContents={setLinerContents}
+          setQuotationContents={setQuotationContents}
+          footerstyleProps={
+            config?.footerstyleProps?.length
+              ? config.footerstyleProps
+              : footerstyleProps
+          }
+          setFooterStyleProps={setFooterStyleProps}
+          headerStyles={
+            config?.headerStyles ? config.headerStyles : headerStyles
+          }
+          setHeaderStyles={setHeaderStyles}
+        />
+      )}
     </div>
   );
 };

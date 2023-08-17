@@ -1,16 +1,32 @@
 import React, { useEffect, useState } from "react";
 import styles from "./HeaderController.module.css";
 import { MultiSelect } from "primereact/multiselect";
-import { HeaderPoints } from "../../headerDataPoint";
 import "../Sidebar/styles.css";
+
+import { HeaderPoints } from "../../headerDataPoint";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const HeaderController = ({
   setSelectedHeaderPoints,
   selectedHeaderPoints,
 }) => {
-  useEffect(() => {
-    setSelectedHeaderPoints(HeaderPoints);
-  }, [HeaderPoints]);
+  // const params = useParams();
+
+  // const userConfigurations = useSelector((state) => state.user.data);
+
+  // const [config, setConfig] = useState([]);
+
+  // useEffect(() => {
+  //   if (params.templateId) {
+  //     const userConfig = userConfigurations.find(
+  //       (item) => item.username === params.templateId
+  //     );
+  //     setConfig(userConfig.configuration);
+  //   } else {
+  //     setConfig([]);
+  //   }
+  // }, [userConfigurations]);
 
   return (
     <MultiSelect

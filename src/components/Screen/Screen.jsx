@@ -23,6 +23,7 @@ import FooterData from "../FooterData/FooterData";
 
 import { Button } from "primereact/button";
 import { FaPaintBrush } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Screen = ({
   removedQuotationDetails,
@@ -360,11 +361,13 @@ const Screen = ({
     setContents(contents.filter((item) => item.value !== obj.value));
   };
 
+  const protocol = useSelector((state) => state.user.protocol);
+
   return (
     <ScreenContainer className={styles.container}>
       <MetaLevelWrapper>
         <AnimatePresence mode="sync">
-          {isTemplateEditable && (
+          {isTemplateEditable && protocol && (
             <motion.div
               layout
               initial={{ scale: 0 }}
